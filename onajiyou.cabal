@@ -1,0 +1,23 @@
+name:                onajiyou
+version:             0.1.0.0
+synopsis:            Kanji search tool
+description:         Search kanji by inputting kanji with similar shapes.
+homepage:            https://github.com/laMudri/onajiyou#readme
+license:             AGPL-3
+license-file:        COPYING
+author:              James Wood
+maintainer:          laMudri@gmail.com
+copyright:           2018 James Wood
+category:            Application
+build-type:          Simple
+cabal-version:       >=1.10
+extra-source-files:  README.md
+
+executable onajiyou
+  hs-source-dirs:      src
+  main-is:             Main.hs
+  default-language:    Haskell2010
+  build-depends:       base >= 4.7 && < 5
+                     , containers >= 0.5 && < 1
+                     , brick >= 0.3 && < 1
+  other-modules:       Data
