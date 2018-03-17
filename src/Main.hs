@@ -24,11 +24,27 @@ import Data.Function
 import Data.List
 import qualified Data.List as L
 import Data.Map.Strict
+import Data.Maybe as M
 
 import Control.Monad
 import Control.Monad.Loops
 
 import System.IO
+
+-- A monoidal fold in a basically meaningless order.
+-- O(log n) uses of the binary operator i.
+dealingFold :: b -> (a -> b) -> (b -> b -> b) -> [a] -> b
+dealingFold n s i = go
+  where
+  go [] = n
+  go (x : []) = s x
+  go xs = i (go ys) (go zs)
+    where
+    (ys , zs) = split xs
+
+    split :: [a] -> ([a] , [a])
+    split [] = ([] , [])
+    split (x : xs) = let (ys , zs) = split xs in (x : zs , ys)
 
 getInput :: IO (Maybe String)
 getInput = do
@@ -40,24 +56,16 @@ getInput = do
 mainWithData :: Map Kanji [Shape] -> Map Shape [Kanji] -> IO ()
 mainWithData kr rk = do
   whileJust_ getInput $ \ input -> do
-    let scores = F.foldl' f empty input
+    let shapes = F.concat (M.mapMaybe (\ c -> kr !? MkKanji c) input)
+    let scores = dealingFold empty s (unionWith (+)) shapes
     let resultList = fmap fst $ sortBy (flip compare `on` snd) $ assocs scores
     putStrLn $ L.filter (not . (`elem` input)) $ fmap kanjiChar resultList
   where
-  f :: Map Kanji Double -> Char -> Map Kanji Double
-  f acc c =
-    case kr !? MkKanji c of
-         Just rs -> unionWith (+) (F.foldl' g empty rs) acc
-         Nothing -> acc
-
-  g :: Map Kanji Double -> Shape -> Map Kanji Double
-  g acc r = unionWith (+) (F.foldl' (h x) empty ks) acc
+  s :: Shape -> Map Kanji Double
+  s r = dealingFold empty (\ k -> insertWith (+) k x empty) (unionWith (+)) ks
     where
     ks = rk ! r
     x = 1 / fromIntegral (length ks)
-
-  h :: Double -> Map Kanji Double -> Kanji -> Map Kanji Double
-  h x acc k = insertWith (+) k x acc
 
 main :: IO ()
 main = do
