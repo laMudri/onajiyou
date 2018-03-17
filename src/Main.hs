@@ -25,12 +25,24 @@ import Data.List
 import qualified Data.List as L
 import Data.Map.Strict
 
+import Control.Monad
+import Control.Monad.Loops
+
+import System.IO
+
+getInput :: IO (Maybe String)
+getInput = do
+  putStr "検索字："
+  hFlush stdout
+  l <- getLine
+  return $ case l of { [] -> Nothing ; _ -> Just l }
+
 mainWithData :: Map Kanji [Shape] -> Map Shape [Kanji] -> IO ()
 mainWithData kr rk = do
-  input <- getLine
-  let scores = F.foldl' f empty input
-  let resultList = fmap fst $ sortBy (flip compare `on` snd) $ assocs scores
-  putStrLn $ L.filter (not . (`elem` input)) $ fmap kanjiChar resultList
+  whileJust_ getInput $ \ input -> do
+    let scores = F.foldl' f empty input
+    let resultList = fmap fst $ sortBy (flip compare `on` snd) $ assocs scores
+    putStrLn $ L.filter (not . (`elem` input)) $ fmap kanjiChar resultList
   where
   f :: Map Kanji Double -> Char -> Map Kanji Double
   f acc c =
