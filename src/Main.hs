@@ -19,9 +19,6 @@ module Main where
 
 import Data
 
-import Brick
-import Brick.Widgets.Edit
-
 import qualified Data.Foldable as F
 import Data.Function
 import Data.List
@@ -49,33 +46,6 @@ mainWithData kr rk = do
 
   h :: Double -> Map Kanji Double -> Kanji -> Map Kanji Double
   h x acc k = insertWith (+) k x acc
-
-data Name = QueryBox
-          | Results
-
-data St = St { focusRing :: FocusRing Name
-             , queryBox :: Editor String Name
-             , results :: Widget Name
-             }
-
-uiWithData :: Map Kanji [Shape] -> Map Shape [Kanji] -> IO ()
-uiWithData kr rk = do
-  let app :: App St e Name
-      app = App { appDraw = ?
-                , appChooseCursor = ?
-                , appHandleEvent = ?
-                , appStartEvent = ?
-                , appAttrMap = ?
-                }
-      initialState = St
-        { focusRing = focusRing [QueryBox, Results]
-        , queryBox = editor QueryBox Nothing ""
-        , results = strWrapWith (WrapSettings { preserveIndentation = False
-                                              , breakLongWords = True
-                                              })
-                                ""
-        }
-  finalState <- defaultMain app initialState
 
 main :: IO ()
 main = do
