@@ -30,14 +30,18 @@ newtype Kanji = MkKanji { kanjiChar :: Char } deriving (Eq, Ord, Show, Read)
 newtype Shape = MkShape { shapeChar :: Char } deriving (Eq, Ord, Show, Read)
 
 kanjiShapesList :: IO [(Kanji, [Shape])]
-kanjiShapesList = withFile "data/kradfile-u-clean.txt" ReadMode $ \ h -> do
+kanjiShapesList = withFile "data/kradfile-u.txt" ReadMode $ \ h -> do
   hSetEncoding h utf8
   fileText <- hGetContents h
   let fileLines = lines fileText
-  forM fileLines $ \ l -> do
+  forM (List.filter notComment fileLines) $ \ l -> do
     case l of
-         k : ':' : rs -> return (MkKanji k, List.map MkShape rs)
+         k : ' ' : ':' : ' ' : rs -> return (MkKanji k, List.map MkShape rs)
          _ -> die $ "Malformed line in data file: " ++ l
+  where
+  notComment :: String -> Bool
+  notComment ('#' : _) = False
+  notComment _ = True
 
 kanjiShapes :: IO (Map Kanji [Shape])
 kanjiShapes = do
