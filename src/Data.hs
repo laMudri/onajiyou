@@ -34,9 +34,10 @@ kanjiShapesList = withFile "data/kradfile-u.txt" ReadMode $ \ h -> do
   hSetEncoding h utf8
   fileText <- hGetContents h
   let fileLines = lines fileText
-  forM (List.filter notComment fileLines) $ \ l -> do
+  let cleanLines = [ List.filter (' ' /=) l | l <- fileLines, notComment l ]
+  forM cleanLines $ \ l -> do
     case l of
-         k : ' ' : ':' : ' ' : rs -> return (MkKanji k, List.map MkShape rs)
+         k : ':' : rs -> return (MkKanji k, List.map MkShape rs)
          _ -> die $ "Malformed line in data file: " ++ l
   where
   notComment :: String -> Bool
