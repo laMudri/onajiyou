@@ -58,10 +58,6 @@ getTerm = do
   l <- getLine
   return $ case l of { [] -> Nothing ; _ -> Just l }
 
--- TODO: parse
-shapesFromInput :: Map Kanji [Shape] -> String -> [Shape]
-shapesFromInput kr input = F.concat (M.mapMaybe (\ c -> kr !? MkKanji c) input)
-
 shapesFromSyntax :: (Eq r) => InputSyntax [r] -> [r]
 shapesFromSyntax (Shapes rs) = rs
 shapesFromSyntax (s :+ t) = shapesFromSyntax s ++ shapesFromSyntax t
